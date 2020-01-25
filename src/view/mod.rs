@@ -5,20 +5,27 @@ pub fn show_message<M>(msg: &M)
 where
     M: Display,
 {
-    println!("{}", msg)
+    print_msg(msg);
+}
+
+pub fn show_prompt<M>(msg: &M)
+where
+    M: Display,
+{
+    print_prompt(msg);
 }
 
 pub fn prompt_user_input_string() -> String {
-    let mut guess = String::new();
+    let mut inp = String::new();
 
     loop {
-        match io::stdin().read_line(&mut guess) {
+        match io::stdin().read_line(&mut inp) {
             Ok(_) => break,
-            Err(_) => println!("I did not understand that, please try again:",),
+            Err(_) => print_meta(&"I did not understand that, please try again:"),
         }
     }
 
-    guess
+    inp.trim().to_string()
 }
 
 pub fn prompt_user_input_index() -> u8 {
@@ -28,9 +35,37 @@ pub fn prompt_user_input_index() -> u8 {
         match io::stdin().read_line(&mut guess) {
             Ok(_) => match guess.parse::<u8>() {
                 Ok(v) => break v,
-                Err(_) => println!("That does not seem to be a valid index, please try again:",),
+                Err(_) => print_meta(&"That does not seem to be a valid index, please try again:"),
             },
-            Err(_) => println!("I did not understand that, please try again:",),
+            Err(_) => print_meta(&"I did not understand that, please try again:"),
         }
     }
+}
+
+fn print_prompt<M>(msg: &M)
+where
+    M: Display,
+{
+    print_w_prefix(msg, "?>");
+}
+
+fn print_meta<M>(msg: &M)
+where
+    M: Display,
+{
+    print_w_prefix(msg, "!>");
+}
+
+fn print_msg<M>(msg: &M)
+where
+    M: Display,
+{
+    print_w_prefix(msg, " >");
+}
+
+fn print_w_prefix<M>(msg: &M, prefix: &str)
+where
+    M: Display,
+{
+    println!("{} {}", prefix, msg);
 }
