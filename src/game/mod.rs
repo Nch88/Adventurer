@@ -1,8 +1,12 @@
 use crate::model::entities::Character;
-use crate::model::world::{Dungeon, Location, LocationKey, Room, World};
+use crate::model::world::{Location, World};
 use crate::view;
 
-use std::collections::HashMap;
+mod world_builder;
+use world_builder as wb;
+
+mod character_creater;
+use character_creater as chacre;
 
 pub struct Game {
     pub world: World,
@@ -11,7 +15,7 @@ pub struct Game {
 
 impl Game {
     pub fn new() -> Self {
-        let locations = create_locations();
+        let locations = wb::locations::create_locations();
         Game {
             world: World::new(locations),
             character: Character::new("Noname".to_owned()),
@@ -19,8 +23,8 @@ impl Game {
     }
 
     pub fn start(&self) {
-        println!("Welcome... To the game!");
-        character_creation();
+        wb::startup::welcome_msg();
+        chacre::character_creation();
         self.game_loop();
     }
 
@@ -42,6 +46,8 @@ impl Game {
             .expect("Invalid character dungeon key")
         {
             Location::Dungeon(dungeon) => {
+                // TODO: Remove notion of Rooms and just have Locations?
+                // A location should have (be?) a Trait that can generate a list of actions based on its own state and the state of the player character.
                 let room_key = &self.character.room_key;
                 let room = &dungeon.rooms[room_key.0 as usize];
                 room.get_description()
@@ -52,7 +58,9 @@ impl Game {
     }
 
     fn prompt_user_action(&self) -> u8 {
-        view::show_message(&"Which action would you like to take?");
+        // TODO: Move prompt to view
+        // Create func that takes a slice of actions, shows the prompt, lists the actions and return a valid action.
+        view::show_prompt(&"Which action would you like to take?");
         let action_idx = view::prompt_user_input_index();
         // TODO: validate action idx based on room actions
         action_idx
@@ -61,32 +69,4 @@ impl Game {
     fn update(&self, action_idx: u8) {
         // TODO: Update state
     }
-}
-
-fn create_locations() -> HashMap<LocationKey, Location> {
-    let mut locations = HashMap::new();
-
-    let mut dungeon0 = Dungeon::new();
-
-    let mut room0 = Room::new("Starting room".to_owned());
-
-    room0.state_descriptions.push("You wake up as if from a deep sleep... You feel yourself lying down on an uncomfortable bed. You eyes are still closed.".to_owned());
-    // TODO: Allow for multi-line descriptions
-
-    dungeon0.rooms.push(room0);
-
-    let loc0 = Location::Dungeon(dungeon0);
-
-    locations.insert(LocationKey(0), loc0);
-    locations
-}
-
-fn character_creation() -> Character {
-    let welcome = "First you need to create a character.";
-    view::show_message(&welcome);
-
-    view::show_message(&"What name do you chose:");
-    let name = view::prompt_user_input_string();
-
-    Character::new(name)
 }
