@@ -1,6 +1,8 @@
 use std::fmt::Display;
 use std::io;
 
+use crate::model::world::Description;
+
 pub fn show_message<M>(msg: &M)
 where
     M: Display,
@@ -13,6 +15,10 @@ where
     M: Display,
 {
     print_prompt(msg);
+}
+
+pub fn show_description(desc: &Description) {
+    show_message(&desc.general);
 }
 
 pub fn prompt_user_input_string() -> String {

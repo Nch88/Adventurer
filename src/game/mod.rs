@@ -1,60 +1,44 @@
+use crate::model::actions::Action;
 use crate::model::entities::Character;
 use crate::model::world::{Location, World};
 use crate::view;
 
-mod world_builder;
+pub mod world_builder;
 use world_builder as wb;
 
 mod character_creater;
-use character_creater as chacre;
+use character_creater as char_cre;
 
 pub struct Game {
     pub world: World,
     pub character: Character,
+    pub action: Action, // TODO: Do not copy around actions
 }
 
 impl Game {
     pub fn new() -> Self {
-        let locations = wb::locations::create_locations();
+        let world = World::new();
+        let action = world.current_loc().describe();
         Game {
-            world: World::new(locations),
+            world,
             character: Character::new("Noname".to_owned()),
+            action,
         }
     }
 
     pub fn start(&self) {
         wb::startup::welcome_msg();
-        chacre::character_creation();
+        char_cre::character_creation();
         self.game_loop();
     }
 
     fn game_loop(&self) {
         let mut action_idx = 0;
         loop {
-            self.show_description();
+            self.action.exec();
             action_idx = self.prompt_user_action();
             self.update(action_idx);
         }
-    }
-
-    fn show_description(&self) {
-        let location_key = &self.character.dungeon_key;
-        let description = match self
-            .world
-            .locations
-            .get(location_key)
-            .expect("Invalid character dungeon key")
-        {
-            Location::Dungeon(dungeon) => {
-                // TODO: Remove notion of Rooms and just have Locations?
-                // A location should have (be?) a Trait that can generate a list of actions based on its own state and the state of the player character.
-                let room_key = &self.character.room_key;
-                let room = &dungeon.rooms[room_key.0 as usize];
-                room.get_description()
-            }
-            _ => unimplemented!(),
-        };
-        view::show_message(&description);
     }
 
     fn prompt_user_action(&self) -> u8 {

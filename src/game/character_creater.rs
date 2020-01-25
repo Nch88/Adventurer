@@ -14,5 +14,6 @@ pub fn character_creation() -> Character {
         name
     ));
     view::show_message(&"Are you ready for one more?");
+    view::show_message(&"");
     Character::new(name)
 }

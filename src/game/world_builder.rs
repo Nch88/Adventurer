@@ -4,31 +4,29 @@ pub mod startup {
     use super::*;
 
     pub fn welcome_msg() {
-        view::show_message(&"Welcome adventurer... To the game!");
+        view::show_message(&"Welcome adventurer... To the great game!");
         view::show_message(&"Are you ready to play again?");
+        view::show_message(&"");
     }
 }
 
 pub mod locations {
-    use crate::model::world::{Dungeon, Location, LocationKey, Room};
+    use crate::model::world::{Description, Location, LocationKey};
 
     use std::collections::HashMap;
 
-    pub fn create_locations() -> HashMap<LocationKey, Location> {
+    pub fn create_locations() -> (HashMap<LocationKey, Location>, LocationKey) {
         let mut locations = HashMap::new();
 
-        let mut dungeon0 = Dungeon::new();
+        let loc0 = Location::new("Starting room".to_owned(), Description{
+            general: "You wake up as if from a deep sleep... You feel yourself lying down on an uncomfortable bed. You eyes are still closed.".to_owned(),
+            ..Default::default()
+        });
+        let loc_key0 = LocationKey(0);
 
-        let mut room0 = Room::new("Starting room".to_owned());
-
-        room0.state_descriptions.push("You wake up as if from a deep sleep... You feel yourself lying down on an uncomfortable bed. You eyes are still closed.".to_owned());
         // TODO: Allow for multi-line descriptions
 
-        dungeon0.rooms.push(room0);
-
-        let loc0 = Location::Dungeon(dungeon0);
-
-        locations.insert(LocationKey(0), loc0);
-        locations
+        locations.insert(loc_key0, loc0);
+        (locations, loc_key0)
     }
 }
