@@ -1,13 +1,13 @@
 use crate::model::actions::Action;
 use crate::model::entities::Character;
-use crate::model::world::{Location, World};
+use crate::model::world::World;
 use crate::view;
 
 pub mod world_builder;
 use world_builder as wb;
 
-mod character_creater;
-use character_creater as char_cre;
+mod character_creator;
+use character_creator as char_cre;
 
 pub struct Game {
     pub world: World,
