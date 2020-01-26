@@ -26,9 +26,13 @@ impl Action {
     }
 }
 
+#[derive(Clone)]
+pub struct ActionKey(&'static str);
+
 pub trait ActionV2 {
     // TODO: Return refs
-    fn new() -> Self;
+    fn new(key: ActionKey, short_desc: String, long_desc: String) -> Self;
+    fn key(&self) -> ActionKey;
     fn short_desc(&self) -> String;
     fn long_desc(&self) -> String;
 }
@@ -43,24 +47,43 @@ pub trait LocAction {
     fn exec(&self, cha: &mut Location);
 }
 
+// TODO: Create trait ActionDescription { short, long}
+// Create trait ActionExec {exec, valid}
+// Create OpenEyes struct with field that is ActionDescription
+// and field that is ActionExec
+
+pub struct Test<T>
+where
+    T: ActionV2,
+{
+    action: T,
+}
+
 pub mod character_actions {
-    use super::{ActionV2, CharAction};
+    use super::{ActionKey, ActionV2, CharAction};
     use crate::model::entities::{Character, Eyes};
 
     pub mod physical_attr_actions {
         use super::*;
 
         pub struct OpenEyes {
-            short_desc: String,
-            long_desc: String,
+            pub key: ActionKey,
+            pub short_desc: String,
+            pub long_desc: String,
         }
 
         impl ActionV2 for OpenEyes {
-            fn new() -> Self {
+            fn new(key: ActionKey, short_desc: String, long_desc: String) -> Self {
                 OpenEyes {
-                    short_desc: "Open your eyes.".to_string(),
-                    long_desc: "You open your eyes.".to_string(),
+                    key,
+                    short_desc,
+                    long_desc,
                 }
+            }
+
+            fn key(&self) -> ActionKey {
+                // Optimize
+                self.key.clone()
             }
 
             fn short_desc(&self) -> String {
@@ -93,8 +116,16 @@ pub mod character_actions {
 
 mod action_tests {
     use crate::model::actions::character_actions::physical_attr_actions::OpenEyes;
-    use crate::model::actions::{ActionV2, CharAction};
+    use crate::model::actions::{ActionKey, ActionV2, CharAction};
     use crate::model::entities::{Character, Eyes};
+
+    fn _open_eyes_test() -> OpenEyes {
+        OpenEyes {
+            key: ActionKey("Test key"),
+            short_desc: "Test short desc".to_string(),
+            long_desc: "Test long desc".to_string(),
+        }
+    }
 
     #[test]
     fn open_eyes_a_closed_eyes_open() {
@@ -105,7 +136,7 @@ mod action_tests {
             _ => panic!("Eyes not closed!"),
         }
 
-        let open_eyes = OpenEyes::new();
+        let open_eyes = _open_eyes_test();
 
         open_eyes.exec(&mut cha);
 
@@ -125,7 +156,7 @@ mod action_tests {
             _ => panic!("Eyes not closed!"),
         }
 
-        let open_eyes = OpenEyes::new();
+        let open_eyes = _open_eyes_test();
 
         assert!(!open_eyes.valid(&cha));
     }

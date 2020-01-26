@@ -10,6 +10,18 @@ pub mod startup {
     }
 }
 
+pub mod actions {
+    use crate::model::actions::character_actions::physical_attr_actions::OpenEyes;
+    use crate::model::actions::{ActionV2, ActionKey};
+    use std::collections::HashMap;
+
+    const open_eyes_key: &str = &"open_eyes_action";
+
+    // pub fn gen_actions() -> HashMap<ActionKey, Box<dyn ActionV2>> {
+    //     HashMap::new()
+    // }
+}
+
 pub mod locations {
     use crate::model::world::{Description, Location, LocationKey};
 
